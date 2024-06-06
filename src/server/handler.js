@@ -1,4 +1,5 @@
-const { modelPredict } = require('../services/inferenceOps');
+// const { modelPredict } = require('../services/inferenceOps');
+const { uploadImage, createBucket } = require('../services/upload');
 
 const getRootHandler = (request, h)=>{
     return h.response({
@@ -17,6 +18,7 @@ const customNotFound = (request, h)=>{
     return response;
 }
 
+/*
 const postPredictHandler = async (request, h)=>{
 
     const { image } = request.payload;
@@ -41,7 +43,7 @@ const postPredictHandler = async (request, h)=>{
         },
     ]
 
-    /* Use the Loaded Model */
+    //Use the Loaded Model
     // const { model } = request.server.app;
 
     // const { result, ingredients, recomendations } = await modelPredict(image) 
@@ -60,7 +62,45 @@ const postPredictHandler = async (request, h)=>{
     response.code(200);
     return response;
 }
+*/
+
+// CHANGED : This is how to Upload Image
+/*
+    1) Receive the Image
+    2) Get the Image's Information (name and path)
+    3) Create a New Image Path thats usable for Cloud Storage
+        Example:
+        - example-folder/example.png
+    4) Upload Image to Cloud Storage
+*/
+const postUploadHandler = async (request, h) => {
+
+    // 1) Receive the Image
+    const { image } = request.payload;
+
+    // 2) Get the Image's Information (name and path)
+    /*
+        if you use:
+        console.log(request.payload);
+
+        you will see the image's name and path
+
+        you can extract that information using the following:
+    */
+    const { filename: imageName, path: imagePath } = image;
+
+    // 3) Create a New Image Path thats usable for Cloud Storage
+    const destinationPath = `${process.env.BUCKET_UPLOAD_PATH}${imageName}`
+
+    // 4) Upload Image to Cloud Storage
+    await createBucket();
+    await uploadImage(imagePath, destinationPath);
+
+
+    return 1;
+}
 
 module.exports = {
-    getRootHandler, customNotFound, postPredictHandler
+    getRootHandler, customNotFound, // postPredictHandler
+    postUploadHandler
 };

@@ -1,7 +1,12 @@
 const Hapi = require('@hapi/hapi');
 const routes = require('./routes');
-const { loadModel } = require('../services/inferenceOps');
-const { uploadImage } = require('../services/upload');
+const dotenv = require('dotenv');
+
+dotenv.config();
+// const { loadModel } = require('../services/inferenceOps');
+
+// CHANGED : Moved to routes.js
+// const { uploadImage } = require('../services/upload');
 
 const init = async () => {
   const server = Hapi.server({
@@ -11,15 +16,19 @@ const init = async () => {
       cors: {
         origin: ['*'],
       },
+      /* CHANGED : Moved to routes.js
       payload: {
         multipart: true // Enable multipart/form-data parsing
       }
+      */
     },
   });
 
   server.route(routes);
 
+  // CHANGED : Moved to routes.js
   // Route for handling image upload
+  /*
   server.route({
       method: 'POST',
       path: '/upload', // Endpoint for image upload
@@ -41,6 +50,7 @@ const init = async () => {
           }
       }
   });
+  */
 
   /* Load the Model and Save the Model in server.app (Uncomment once Model is Available) */
   /*
@@ -50,6 +60,15 @@ const init = async () => {
   */
   // server.app.model = await loadModel();
 
+  // CHANGED : Added Hapi Inert Plugin to Handle Files
+  // sent to a Endpoint.
+  // Installed using :
+  // npm install @hapi/inert
+  await server.register([
+    {
+      plugin: require('@hapi/inert')
+    }
+  ])
   server.ext('onPreResponse', (request, h)=>{
     const response = request.response;
 

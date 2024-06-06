@@ -1,5 +1,6 @@
 const {
-    getRootHandler, customNotFound, postPredictHandler
+    getRootHandler, customNotFound, // postPredictHandler
+    postUploadHandler
 } = require('./handler');
 
 const routes = [
@@ -8,6 +9,19 @@ const routes = [
         path: '/',
         handler: getRootHandler,
     },
+    {
+        method: 'POST',
+        path: '/upload', // Endpoint for image upload
+        handler: postUploadHandler,
+        options: {
+            payload: {
+                multipart: true,
+                allow: `multipart/form-data`,
+                output: 'file',
+            }
+        }
+    },
+    /*
     {
         path: '/predict',
         method: 'POST',
@@ -19,6 +33,7 @@ const routes = [
             }
         }
     },
+    */
     {
         method: '*',
         path: '/{any*}',
